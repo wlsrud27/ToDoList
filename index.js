@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let p3 = document.createElement('p');
         let img = document.createElement('img');
-        img.src = '/image/trash-solid.svg';
+        img.src = '/ToDoList/image/trash-solid.svg';
         img.alt = '쓰레기통';
         img.classList.add('remove');
 
