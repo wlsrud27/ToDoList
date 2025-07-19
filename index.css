@@ -22,6 +22,7 @@ ul {
     margin: auto;
     background-color: white;
     margin-top: 40px;
+    position: relative;
 }
 
 .wrap header {
@@ -47,15 +48,29 @@ header h2 {
     flex-direction: column;
     align-items: center;
 }
-
-header .date {
-    font-size: 14px;
+header .date{
+    display: flex;
+}
+header #datepicker{ 
+    text-align: center;
+    outline: 0;
+    border: 0;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
     color: #b4b4b4;
     margin-top: 8px;
 }
 
 main {
     width: 100%;
+    height: 700px;
+    overflow: scroll;
+}
+
+/* 스크롤바 없애기*/
+main::-webkit-scrollbar {
+  display: none;
 }
 
 main .list_wrap {
@@ -133,3 +148,41 @@ footer .add {
     color: rgb(121, 186, 207);
     cursor: pointer;
 }
+
+.card{
+    position: absolute;
+    top: 240px;
+    width: 100%;
+    transition: all .4s;
+    z-index: 10;
+}
+
+.card_ani{
+    animation: ani 2s alternate forwards ;
+}
+
+@keyframes ani{
+    0%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}
+
+
+.fade-out {
+  animation: ani_close 2s forwards alternate;
+}
+
+
+@keyframes ani_close{
+    0%{
+        opacity: 1;
+    }
+    100%{
+        opacity: 0;
+    }
+}
+
+
