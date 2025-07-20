@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let addPossibleYn = true;  // 추가 가능 여부
     let todoCnt = 1;
+    let selectedDate // 날짜 저장할 변수 선언
+    let year;     // 연도 
+    let month;    // 월
+    let day;     // 일
 
     // 항목추가하기(콜백함수 이용)
 
@@ -189,10 +193,45 @@ document.addEventListener('DOMContentLoaded', function () {
     // 오늘 날짜 기록하기
 
     let today = new Date();
-    let year = today.getFullYear();
-    let month = String(today.getMonth() + 1).padStart(2, '0');
-    let day = today.getDate();
+    year = today.getFullYear();
+    month = String(today.getMonth() + 1).padStart(2, '0');
+    day = String(today.getDate()).padStart(2, '0');
 
+
+    // 날짜를 클릭했을 때 달력이 뜨며 선택한 날짜로 이동하기
+
+    // 달력만들기
+
+    // input태그 만들기 및 속성추가
+    let datePicker = document.createElement('input');
+    datePicker.type = "text";
+    datePicker.setAttribute('id', 'datepicker');
+    datePicker.value = `${year}.${month}.${day}`
+
+    document.querySelector('.date').appendChild(datePicker)
+
+
+
+    // datepicker 클릭한 value값을 기준으로 화살표 클릭해서 날짜 변경하기
+
+
+    // 1. datepicker에서 클릭한 value값 가져오기
+    let currentDate =
+        $('#datepicker').datepicker({
+            language: 'ko',
+            dateFormat: "yyyy.mm.dd",
+            onSelect: function (dateText) {
+                selectedDate = dateText
+                // console.log('선택한 날짜:', selectedDate);
+                let partDate = selectedDate.split('.')
+                year = partDate[0]      // 연도 
+                month = partDate[1]     // 월
+                day = partDate[2]       // 일
+                // console.log(year)
+                // console.log(month)
+                // console.log(day)
+            }
+        })
 
     // 오른쪽 화살표를 클릭했을 때 다음 날짜로 저장하기
 
@@ -204,14 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // 2. 다음 날 날짜를 구한다.
         day++;
 
-        // 3. 날짜를 .date에 반영한다.
-
-        document.querySelector('#datepicker').value = `${year}.${month}.${day}`
-
-        // 4. list의 값을 초기화한다.
-        document.querySelector('.list_wrap').innerHTML = " ";
-
-        // 5. 해당 달에 마지막 날일 때 그에 맞게 날짜 변경하기
+        // 3. 해당 달에 마지막 날일 때 그에 맞게 날짜 변경하기
 
         //  해당 달의 마지막 일자일 때 => 다음 달로 변경 , 일자는 1일로 지정
         //  해당 달의 마지막 일자 구하기
@@ -228,12 +260,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     year++;
                 }
             }
-
-            document.querySelector('#datepicker').value = `${year}.${month}.${day}`
-
-
-
         }
+
+        // 4. 날짜를 .date에 반영한다.
+        month = String(month).padStart(2, '0')   // 다시 number -> string으로 변환
+        day = String(day).padStart(2, '0')
+
+        document.querySelector('#datepicker').value = `${year}.${month}.${day}`
+
+
+        // 5. list의 값을 초기화한다.
+        document.querySelector('.list_wrap').innerHTML = " ";
+
     })
 
     // 왼쪽 화살표를 클릭했을 때 이전 날짜로 저장하기
@@ -244,13 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // 2. 이전 날짜를 구한다.
         day--;
 
-        // 3. 날짜를 .date에 반영한다.
-        document.querySelector('#datepicker').value = `${year}.${month}.${day}`
-
-        // 4. list의 값을 초기화한다.
-        document.querySelector('.list_wrap').innerHTML = " ";
-
-        // 5. 해당 달에 일자에 맞춰 반영하기
+        // 3. 해당 달에 일자에 맞춰 반영하기
         // day < 1 => lastDate , month -1
 
         if (day < 1) {
@@ -265,35 +297,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     year--;
                 }
             }
-            document.querySelector('#datepicker').value = `${year}.${month}.${day}`
         }
+
+        // 4. 날짜를 .date에 반영한다.
+        month = String(month).padStart(2, '0')   // 다시 number -> string으로 변환
+        day = String(day).padStart(2, '0')
+        document.querySelector('#datepicker').value = `${year}.${month}.${day}`
+
+
+        // 5. list의 값을 초기화한다.
+        document.querySelector('.list_wrap').innerHTML = " ";
     })
 
 
-    // 날짜를 클릭했을 때 달력이 뜨며 선택한 날짜로 이동하기
-
-    // 달력만들기
-
-    // input태그 만들기 및 속성추가
-    let datePicker = document.createElement('input');
-    datePicker.type = "text";
-    datePicker.setAttribute('id', 'datepicker');
-    datePicker.value = `${year}.${month}.${day}`
-
-    document.querySelector('.date').appendChild(datePicker)
-
-    $('#datepicker').datepicker({
-        language: 'ko',
-        dateFormat: "yyyy.mm.dd"
-    })
 
 
-    // datepicker 클릭한 value값을 기준으로 화살표 클릭해서 날짜 변경하기
 
-    document.querySelector('#datepicker').addEventListener('dblclick', function (e) {
-        let dateVal = e.target.value;
-        console.log('선택한 날짜:' + dateVal);
-    })
 
 });
 
