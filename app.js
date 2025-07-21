@@ -31,7 +31,7 @@ app.post('/api/list', async (req, res) => {
     try {
         connection = await oracleDB.getConnection();
         const result = await connection.execute(
-            `SELECT * from TB_TODO_LIST WHERE STD_YMD = :stdYmd ORDER BY TODO_NO AES`,
+            `SELECT * from TB_TODO_LIST WHERE STD_YMD = :stdYmd ORDER BY TODO_NO`,
             { stdYmd: stdYmd },
             { outFormat: oraDB.OUT_FORMAT_OBJECT }
         );

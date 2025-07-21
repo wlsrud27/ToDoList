@@ -54,11 +54,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     // console.log(year)
                     // console.log(month)
                     // console.log(day)
+                    getTodoList()
                 }
             })
         getTodoList()
     }
     function getTodoList() {
+        document.querySelector('.list_wrap').innerHTML = "";
         let stdYmd = document.querySelector('#datepicker').value.replace(/\./g, ''); // 날짜 포맷 변경
         fetch('http://localhost:3000/api/list', {
             method: 'POST',
@@ -180,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let p3 = document.createElement('p');
         let img = document.createElement('img');
-        img.src = '/image/trash-solid.svg';
+        img.src = './image/trash-solid.svg';
         img.alt = '쓰레기통';
         img.classList.add('remove');
 
