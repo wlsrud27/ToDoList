@@ -1,0 +1,3 @@
+#WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="D:\vsWorkSpace\jinKyoung\ToDoList\Wallet_GyuDataBase")))
+WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="./Wallet_GyuDataBase")))
+SSL_SERVER_DN_MATCH=yes

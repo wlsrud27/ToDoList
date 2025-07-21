@@ -12,8 +12,139 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('.add').addEventListener('click', addElement)
 
     // 콜백함수(add 클릭할 때)
+    init();
+    function init() {
+    // 오늘 날짜 기록하기
 
-    function addElement(e) {
+        let today = new Date();
+        year = today.getFullYear();
+        month = String(today.getMonth() + 1).padStart(2, '0');
+        day = String(today.getDate()).padStart(2, '0');
+
+
+        // 날짜를 클릭했을 때 달력이 뜨며 선택한 날짜로 이동하기
+
+        // 달력만들기
+
+        // input태그 만들기 및 속성추가
+        let datePicker = document.createElement('input');
+        datePicker.type = "text";
+        datePicker.setAttribute('id', 'datepicker');
+        datePicker.value = `${year}.${month}.${day}`
+
+        document.querySelector('.date').appendChild(datePicker)
+
+
+
+        // datepicker 클릭한 value값을 기준으로 화살표 클릭해서 날짜 변경하기
+
+
+        // 1. datepicker에서 클릭한 value값 가져오기
+        let currentDate =
+            $('#datepicker').datepicker({
+                language: 'ko',
+                dateFormat: "yyyy.mm.dd",
+                onSelect: function (dateText) {
+                    selectedDate = dateText
+                    // console.log('선택한 날짜:', selectedDate);
+                    let partDate = selectedDate.split('.')
+                    year = partDate[0]      // 연도 
+                    month = partDate[1]     // 월
+                    day = partDate[2]       // 일
+                    // console.log(year)
+                    // console.log(month)
+                    // console.log(day)
+                }
+            })
+        getTodoList()
+    }
+    function getTodoList() {
+        let stdYmd = document.querySelector('#datepicker').value.replace(/\./g, ''); // 날짜 포맷 변경
+        fetch('http://localhost:3000/api/list', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },      
+            
+            body: JSON.stringify({
+                stdYmd: stdYmd // 날짜
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched data:', data); 
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    addElement(null,item);
+                });
+            }
+        });
+    }
+    // ToDo 수정하기
+    function modifyTodo(e,p1,type) {
+        const li = e.target.closest('li'); // input의 가장 가까운 li 부모 찾기
+        let todoNo = li.getAttribute('todoNo');   // li의 todoNo 속성값 가져오기
+        let stdYmd = document.querySelector('#datepicker').value.replace(/\./g, ''); // 날짜 포맷 변경
+        // input 수정 시
+        if(type == 'input') {
+            let inputValue = e.target.value.trim();
+            
+            // ajax를 통해서 /api/insert 실행
+            if (inputValue !== '' && inputValue !== null && inputValue !== undefined) {
+                fetch('http://localhost:3000/api/insert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },      
+                    
+                    body: JSON.stringify({
+                        stdYmd: stdYmd, // 날짜
+                        finishYn: p1.classList.contains('cked') ? 1 : 0, // 체크 여부
+                        todoText: inputValue,
+                        createUser : 'jinKyoung' ,
+                        todoNo: todoNo === undefined ? null : todoNo
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Insert successful:', data);
+                    } else {
+                        console.error('Insert failed:', data);
+                    }
+                });
+            }
+        }
+        // 체크박스 수정 시 UPDATE 수행 
+        else {
+            let checkYn = e.target.classList.contains('cked') ==  true ? 1 : 0; // 체크 여부
+            fetch('http://localhost:3000/api/check', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },      
+                
+                body: JSON.stringify({
+                    stdYmd: stdYmd, // 날짜
+                    finishYn: checkYn, // 체크 여부
+                    createUser : 'jinKyoung' ,
+                    todoNo: todoNo === undefined ? null : todoNo
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Update successful:', data);
+                } else {
+                    console.error('Update failed:', data);
+                }
+            });
+        }
+
+    }
+
+    // 항목 추가하기
+    function addElement(e,data) {
 
         // 추가 가능여부가 false 일 때 처음으로 돌아가기
         if (!addPossibleYn) {
@@ -49,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let p3 = document.createElement('p');
         let img = document.createElement('img');
-        img.src = '/ToDoList/image/trash-solid.svg';
+        img.src = '/image/trash-solid.svg';
         img.alt = '쓰레기통';
         img.classList.add('remove');
 
@@ -72,7 +203,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         input.focus();
 
-
+        // 기존 데이터 불러오는 방식이라면 setting 해주기
+        if(data !== undefined && data !== null) {
+            input.value = data.TODO_TEXT; // 기존 데이터 설정
+            p1.classList.toggle('cked', data.FINISH_YN === 1); // 체크 여부 설정
+            input.disabled = data.FINISH_YN === 1; // 체크된 경우 input 비활성화
+            input.classList.toggle('input_color', data.FINISH_YN === 1); // 체크된 경우 색상 변경
+            li.setAttribute('todoNo', data.TODO_NO); // todoNo 속성 추가
+        }
+        else {
+            li.setAttribute('todoNo', todoCnt); // todoNo 속성 추가
+        }
         // input태그가 빈 칸이면 경고창 띄우기
 
         input.addEventListener('input', function (e) {
@@ -88,7 +229,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 span.innerText = ''
             }
         })
-    }
+        // input 창에 글 작성이 끝나고 포커스가 벗어났을 경우 저장처리
+        input.addEventListener('change', function (e) {
+            modifyTodo(e,p1,'input');
+        });
+    }   
 
     // 항목 지우기
 
@@ -101,6 +246,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 applyCnt(false);
                 addPossibleYn = true;
             }
+
+            // ajax를 통해서 /api/delete 실행
+            let todoNo = li.getAttribute('todoNo');
+            let stdYmd = document.querySelector('#datepicker').value.replace(/\./g, ''); // 날짜 포맷 변경
+            fetch('http://localhost:3000/api/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    todoNo: todoNo,
+                    stdYmd: stdYmd
+                })  
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Delete successful:', data);
+                } else {
+                    console.error('Delete failed:', data);
+                }
+            })
+            .catch(err => {
+                console.error('Error deleting todo:', err);
+            });
         }
 
 
@@ -138,6 +308,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             applyCnt();
+
+            modifyTodo(e,null,"check"); // 체크 상태 변경 시에도 저장 처리
 
 
         }
@@ -186,53 +358,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-
-
-
-
-    // 오늘 날짜 기록하기
-
-    let today = new Date();
-    year = today.getFullYear();
-    month = String(today.getMonth() + 1).padStart(2, '0');
-    day = String(today.getDate()).padStart(2, '0');
-
-
-    // 날짜를 클릭했을 때 달력이 뜨며 선택한 날짜로 이동하기
-
-    // 달력만들기
-
-    // input태그 만들기 및 속성추가
-    let datePicker = document.createElement('input');
-    datePicker.type = "text";
-    datePicker.setAttribute('id', 'datepicker');
-    datePicker.value = `${year}.${month}.${day}`
-
-    document.querySelector('.date').appendChild(datePicker)
-
-
-
-    // datepicker 클릭한 value값을 기준으로 화살표 클릭해서 날짜 변경하기
-
-
-    // 1. datepicker에서 클릭한 value값 가져오기
-    let currentDate =
-        $('#datepicker').datepicker({
-            language: 'ko',
-            dateFormat: "yyyy.mm.dd",
-            onSelect: function (dateText) {
-                selectedDate = dateText
-                // console.log('선택한 날짜:', selectedDate);
-                let partDate = selectedDate.split('.')
-                year = partDate[0]      // 연도 
-                month = partDate[1]     // 월
-                day = partDate[2]       // 일
-                // console.log(year)
-                // console.log(month)
-                // console.log(day)
-            }
-        })
-
     // 오른쪽 화살표를 클릭했을 때 다음 날짜로 저장하기
 
     // 1. 오른쪽 화살표를 클릭한다.
@@ -271,6 +396,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 5. list의 값을 초기화한다.
         document.querySelector('.list_wrap').innerHTML = " ";
+        getTodoList(); // 새로고침 시 해당 날짜의 todo 리스트를 가져오기
 
     })
 
@@ -307,13 +433,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 5. list의 값을 초기화한다.
         document.querySelector('.list_wrap').innerHTML = " ";
+        getTodoList(); // 새로고침 시 해당 날짜의 todo 리스트를 가져오기
     })
-
-
-
-
-
-
 });
 
 

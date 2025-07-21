@@ -1,0 +1,17 @@
+{
+  "name": "oracle-node-backend",
+  "version": "1.0.0",
+  "description": "A Node.js backend application to interact with Oracle Database.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "oracledb": "^5.1.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
